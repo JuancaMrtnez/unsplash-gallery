@@ -13,6 +13,9 @@ RUN echo '[www]\nlisten = /var/run/php-fpm.sock\nlisten.owner = www-data\nlisten
 WORKDIR /var/www/html
 COPY . .
 
+# Fix permissions for Laravel
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
 ENV COMPOSER_ALLOW_SUPERUSER=1
 ENV APP_ENV=production
 ENV APP_DEBUG=false
