@@ -4,16 +4,17 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-\Unsplash\HttpClient::init(
-    [
-        'applicationId' => env('UNSPLASH_ACCESS_KEY'),
-        'secret' => env('UNSPLASH_SECRET_KEY'),
-        'utmSource' => env('UNSPLASH_APP_NAME')
-    ]
-);
-
 class ImageGalleryController extends Controller
 {
+    public function __construct()
+    {
+        \Unsplash\HttpClient::init([
+            'applicationId' => config('services.unsplash.access_key'),
+            'secret' => config('services.unsplash.secret_key'),
+            'utmSource' => config('services.unsplash.app_name')
+        ]);
+    }
+
     public function index()
     {
         return $this->showGallery('cats', 10, 'landscape');
