@@ -1,35 +1,19 @@
-FROM php:8.3-fpm-bullseye
-
-RUN apt-get update && apt-get install -y \
-    nginx \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    libpq-dev \
-    zip \
-    unzip \
-    curl \
-    && docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-WORKDIR /var/www/html
+FROM richarvey/nginx-php-fpm:3.1.6
 
 COPY . .
 
-ENV COMPOSER_ALLOW_SUPERUSER=1
-ENV APP_ENV=production
-ENV APP_DEBUG=false
-ENV LOG_CHANNEL=stderr
+ENV SKIP_COMPOSER 1
+ENV WEBROOT /var/www/html/public
+ENV PHP_ERRORS_STDERR 1
+ENV RUN_SCRIPTS 1
+ENV REAL_IP_HEADER 1
 
-RUN composer install --no-dev
+ENV APP_ENV production
+ENV APP_DEBUG false
+ENV LOG_CHANNEL stderr
 
-COPY conf/nginx/nginx-site.conf /etc/nginx/sites-available/default
+ENV COMPOSER_ALLOW_SUPERUSER 1
 
-RUN ln -sf /dev/stdout /var/log/nginx/access.log \
-    && ln -sf /dev/stderr /var/log/nginx/error.log
+RUN composer install --no-dev --working-dir=/var/www/html
 
-EXPOSE 80
-
-CMD ["sh", "-c", "php artisan config:cache && php artisan route:cache && php artisan migrate --force && php-fpm -D && nginx -g 'daemon off;'"]
+CMD ["/start.sh"]
