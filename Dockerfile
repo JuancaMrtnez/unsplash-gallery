@@ -16,4 +16,7 @@ ENV COMPOSER_ALLOW_SUPERUSER 1
 
 RUN composer install --no-dev --working-dir=/var/www/html
 
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+RUN composer install --no-dev --optimize-autoloader --working-dir=/var/www/html
+
 CMD ["/start.sh"]
